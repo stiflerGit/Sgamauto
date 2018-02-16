@@ -18,29 +18,46 @@ class InsuranceServicer(driversdb_pb2_grpc.InsuranceServicer):
 		pass
 
 	def Analize(self, request, context):
-
-		usr_tests_path = paths._DBPATH + "/" + str(request._targa_) + "/TESTS"
-		if not os.path.exists(usr_tests_path)
-			os.makedirs(usr_tests_path)
-
-		strtime = time.ctime(request._timestamp_)
-		alc_lvl = request._alc_lvl_
-
-		driver_cf = request._driver_._cf_
-		driver_name = request._driver_._name_
-
+	
+		if os.path.isfile(paths._DBPATH + "/" + str(request._targa_) + "/tests.xml"):
+			doc = etree.parse(paths._DBPATH + "/" + str(request._targa_) + "/tests.xml")
+		else:
+			doc = etree.Element('tests', targa = request._targa_)
+			doc = etree.ElementTree(doc)
+	  
+	 	testsElt = doc.getroot()
 		
-		#img = io.FileIO("./test.jpg", 'w')
-		#img.write(request._driver_._photo_)
-		#img.close()
+		testElt = etree.Element('test', time = str(request._timestamp_))
 
-		print "usr_test_path = " + usr_tests_path
-		print "time = " + strtime
-		print "alc_lvl = " + str(alc_lvl)
+		timeElt = etree.Element('date')
+		timeElt.text =  time.ctime(request._timestamp_)
+		testElt.append(timeElt)
+		
+		alcLvlElt = etree.Element('alcLvl')
+		alcLvlElt.text = str(request._alc_lvl_)
+		testElt.append(alcLvlElt)
 
-		print "driver_id = " + driver_id
-		print "driver_name = " + driver_name
+		if request._driver_._known_ == 0:
+			driverElt = etree.Element('autista', cf = request._driver_._cf_)
+			driverNameElt = etree.Element('nome', request._driver_._name_)
+		else:
+			driverElt = etree.Element('autista', cf = "Sconosciuto")
+		
+		testsimg_path = paths._DBPATH + "/" + str(request._targa_) + "/TESTSIMG"
+		if not os.path.exists(testsimg_path):
+			os.makedirs(testsimg_path)
 
+		img = io.FileIO(testsimg_path + '/' + str(request._timestamp_) + '.jpg', 'w')
+		img.write(request._driver_._photo_)
+		img.close()
+
+		testElt.append(driverElt)
+
+		testsElt.append(testElt)
+
+		outXML = open(paths._DBPATH + "/" + str(request._targa_) + "/tests.xml", 'w')
+		doc.write(outXML)
+		outXML.close()
 
 		return driversdb_pb2.ACK(_result_ = "OK")
 		

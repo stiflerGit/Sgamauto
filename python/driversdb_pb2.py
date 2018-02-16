@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='driversdb.proto',
   package='',
   syntax='proto2',
-  serialized_pb=_b('\n\x0f\x64riversdb.proto\"\x17\n\x03\x41\x43K\x12\x10\n\x08_result_\x18\x01 \x01(\t\"W\n\x04Test\x12\x0c\n\x04_id_\x18\x01 \x02(\t\x12\x11\n\t_alc_lvl_\x18\x02 \x02(\r\x12\x13\n\x0b_timestamp_\x18\x03 \x02(\x04\x12\x19\n\x08_driver_\x18\x04 \x02(\x0b\x32\x07.Driver\"q\n\x06\x44river\x12\x1e\n\x07_known_\x18\x01 \x02(\x0e\x32\r.Driver.Known\x12\x0c\n\x04_id_\x18\x02 \x01(\t\x12\x0e\n\x06_name_\x18\x03 \x01(\t\x12\x0f\n\x07_photo_\x18\x04 \x02(\x0c\"\x18\n\x05Known\x12\x07\n\x03YES\x10\x00\x12\x06\n\x02NO\x10\x01\x32G\n\tInsurance\x12\x18\n\x07\x41nalize\x12\x05.Test\x1a\x04.ACK\"\x00\x12 \n\rTrainerUpdate\x12\x07.Driver\x1a\x04.ACK\"\x00')
+  serialized_pb=_b('\n\x0f\x64riversdb.proto\"\x17\n\x03\x41\x43K\x12\x10\n\x08_result_\x18\x01 \x01(\t\"Z\n\x04Test\x12\x0f\n\x07_targa_\x18\x01 \x02(\t\x12\x13\n\x0b_timestamp_\x18\x02 \x02(\x04\x12\x11\n\t_alc_lvl_\x18\x03 \x02(\r\x12\x19\n\x08_driver_\x18\x04 \x02(\x0b\x32\x07.Driver\"q\n\x06\x44river\x12\x1e\n\x07_known_\x18\x01 \x02(\x0e\x32\r.Driver.Known\x12\x0c\n\x04_cf_\x18\x02 \x01(\t\x12\x0e\n\x06_name_\x18\x03 \x01(\t\x12\x0f\n\x07_photo_\x18\x04 \x02(\x0c\"\x18\n\x05Known\x12\x07\n\x03YES\x10\x00\x12\x06\n\x02NO\x10\x01\x32G\n\tInsurance\x12\x18\n\x07\x41nalize\x12\x05.Test\x1a\x04.ACK\"\x00\x12 \n\rTrainerUpdate\x12\x07.Driver\x1a\x04.ACK\"\x00')
 )
 
 
@@ -41,8 +41,8 @@ _DRIVER_KNOWN = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=222,
-  serialized_end=246,
+  serialized_start=225,
+  serialized_end=249,
 )
 _sym_db.RegisterEnumDescriptor(_DRIVER_KNOWN)
 
@@ -86,22 +86,22 @@ _TEST = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='_id_', full_name='Test._id_', index=0,
+      name='_targa_', full_name='Test._targa_', index=0,
       number=1, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='_alc_lvl_', full_name='Test._alc_lvl_', index=1,
-      number=2, type=13, cpp_type=3, label=2,
+      name='_timestamp_', full_name='Test._timestamp_', index=1,
+      number=2, type=4, cpp_type=4, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='_timestamp_', full_name='Test._timestamp_', index=2,
-      number=3, type=4, cpp_type=4, label=2,
+      name='_alc_lvl_', full_name='Test._alc_lvl_', index=2,
+      number=3, type=13, cpp_type=3, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -126,7 +126,7 @@ _TEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=44,
-  serialized_end=131,
+  serialized_end=134,
 )
 
 
@@ -145,7 +145,7 @@ _DRIVER = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='_id_', full_name='Driver._id_', index=1,
+      name='_cf_', full_name='Driver._cf_', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -178,8 +178,8 @@ _DRIVER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=133,
-  serialized_end=246,
+  serialized_start=136,
+  serialized_end=249,
 )
 
 _TEST.fields_by_name['_driver_'].message_type = _DRIVER
@@ -219,8 +219,8 @@ _INSURANCE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=248,
-  serialized_end=319,
+  serialized_start=251,
+  serialized_end=322,
   methods=[
   _descriptor.MethodDescriptor(
     name='Analize',
