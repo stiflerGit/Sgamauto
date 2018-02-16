@@ -1,0 +1,44 @@
+syntax = "proto2";
+
+// The Insurance Server collect data by all the devices of the drivers that stipulate the contract
+service Insurance{
+	// A client-to-server notification RPC
+	//
+	// Send all data collected by an alcohol test and send an ACK to the client
+	rpc Analize(Test) returns(ACK) {}
+
+	// A client-to-server request of update
+	//
+	// Request to upgrade the recognizer of a person
+	rpc TrainerUpdate(Driver) returns(ACK){}
+}
+
+message ACK{
+	optional string _result_ = 1;
+}
+
+message Test{
+	// Id of the contract linked to the device sending the Test message
+	required string _targa_ = 1;
+	// Time when the test has been done
+	required uint64 _timestamp_ = 2;
+	// Alcohol level of the driver
+	required uint32 _alc_lvl_ = 3;
+	// Driver who did the test
+	required Driver _driver_ = 4;
+}
+
+message Driver{
+	enum Known{
+		YES = 0;
+		NO = 1;
+	}
+	// The driver can be either known or unknown by the device
+	required Known _known_ = 1;
+	// Id of the driver. This is relevant only when identity is known
+	optional string _cf_ = 2;
+	// Name of the driver. Relevant only when identity is konwn
+	optional string _name_ = 3;
+	// Photo of the driver.
+	required bytes _photo_ = 4;
+}
