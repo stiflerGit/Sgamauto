@@ -1,0 +1,2 @@
+<db xmlns="/home/stefano/workspace/Sgamauto/db.xsd">
+<auto targa="AB123CD"><autista cf="FRISFN90R29I452Q"><nome>Stefano</nome><cognome>Fiori</cognome><eta>27</eta><anni_patente>9</anni_patente></autista></auto><auto targa="CD222CD"><autista cf="BLDMHL93E03G628K"><nome>Michele</nome><cognome>Baldassini</cognome><eta>24</eta><anni_patente>7</anni_patente></autista></auto></db>

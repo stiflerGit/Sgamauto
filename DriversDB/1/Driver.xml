@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+<driver xmlns="https://www.w3schools.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="../Driver.xsd">
+
+<xs:element name="driver">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element name="firstname" type="xs:string"/>
+      <xs:element name="lastname" type="xs:string"/>
+      <xs:element name="age">
+        <xs:simpleType>
+	  <xs:restriction base="xs:integer">
+	    <xs:minInclusive value="18">
+	    <xs:maxInclusive value="100">
+	  </xs:restriction>
+	</xs:simpleType>
+      </xs:element>
+      <xs:element name="dateborn" type="xs:date">
+    </xs:sequence>
+  </xs:complexType>
+</xs:element> 

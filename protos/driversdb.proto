@@ -4,13 +4,10 @@ syntax = "proto2";
 service Insurance{
 	// A client-to-server notification RPC
 	//
+	// Initial configuration for the device tied to a specific car
+	rpc InitDevice(Targa) returns(Config) {}
 	// Send all data collected by an alcohol test and send an ACK to the client
 	rpc Analize(Test) returns(ACK) {}
-
-	// A client-to-server request of update
-	//
-	// Request to upgrade the recognizer of a person
-	rpc TrainerUpdate(Driver) returns(ACK){}
 }
 
 message ACK{
@@ -35,10 +32,27 @@ message Driver{
 	}
 	// The driver can be either known or unknown by the device
 	required Known _known_ = 1;
-	// Id of the driver. This is relevant only when identity is known
-	optional string _cf_ = 2;
-	// Name of the driver. Relevant only when identity is konwn
-	optional string _name_ = 3;
 	// Photo of the driver.
-	required bytes _photo_ = 4;
+	required bytes _photo_ = 2;
+	// CF of the driver. This is relevant only when identity is known
+	optional string _cf_ = 3;
+	// Driver informations. Relevant only when identity is konwn
+	optional string _firstname_ = 4;
+	optional string _lastname_ = 5;
+	optional uint32 _age_ = 6;
+	optional uint32 _lic_age_ = 7;
+}
+
+message Config{
+	required bytes _data_dev_ = 1;
+	required bytes _face_recogn_ = 2; 
+}
+
+message Targa{
+	required string _targa_ = 1;
+}
+
+message FileChunk {
+	optional int64 offset = 1;
+	optional bytes data = 2;
 }

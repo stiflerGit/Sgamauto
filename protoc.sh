@@ -1,1 +1,1 @@
-python -m grpc_tools.protoc -I=./protos --python_out=./python/ --grpc_python_out=./python ./protos/driversdb.proto
+python -m grpc_tools.protoc -I=./protos --python_out=./src/ --grpc_python_out=./src ./protos/driversdb.proto
