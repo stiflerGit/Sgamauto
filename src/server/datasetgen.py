@@ -9,9 +9,7 @@ import numpy as np
 cam = cv2.VideoCapture()
 detector = cv2.CascadeClassifier('/usr/share/opencv/haarcascades/haarcascade_frontalface_default.xml')
 
-xml_head = '<?xml version="1.0"?>\n\
-<db xmlns="'+paths._XMLSCHEMA+'">\n\
-</db>'
+xml_head = '<?xml version="1.0"?>\n<db></db>'
 
 if os.path.isfile(paths._XMLDB):
 	doc = etree.parse(paths._XMLDB)

@@ -14,13 +14,18 @@ class InsuranceStub(object):
     Args:
       channel: A grpc.Channel.
     """
-    self.InitDevice = channel.unary_unary(
-        '/Insurance/InitDevice',
-        request_serializer=driversdb__pb2.Targa.SerializeToString,
-        response_deserializer=driversdb__pb2.Config.FromString,
+    self.Report = channel.unary_unary(
+        '/Insurance/Report',
+        request_serializer=driversdb__pb2.Test.SerializeToString,
+        response_deserializer=driversdb__pb2.ACK.FromString,
         )
-    self.Analize = channel.unary_unary(
-        '/Insurance/Analize',
+    self.initReport = channel.unary_unary(
+        '/Insurance/initReport',
+        request_serializer=driversdb__pb2.Test.SerializeToString,
+        response_deserializer=driversdb__pb2.ACK.FromString,
+        )
+    self.finalReport = channel.unary_unary(
+        '/Insurance/finalReport',
         request_serializer=driversdb__pb2.Test.SerializeToString,
         response_deserializer=driversdb__pb2.ACK.FromString,
         )
@@ -30,18 +35,25 @@ class InsuranceServicer(object):
   """The Insurance Server collect data by all the devices of the drivers that stipulate the contract
   """
 
-  def InitDevice(self, request, context):
+  def Report(self, request, context):
     """A client-to-server notification RPC
 
-    Initial configuration for the device tied to a specific car
+    Send all data collected by an alcohol test and send an ACK to the client
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
-  def Analize(self, request, context):
-    """Send all data collected by an alcohol test and send an ACK to the client
-    """
+  def initReport(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def finalReport(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
@@ -49,13 +61,18 @@ class InsuranceServicer(object):
 
 def add_InsuranceServicer_to_server(servicer, server):
   rpc_method_handlers = {
-      'InitDevice': grpc.unary_unary_rpc_method_handler(
-          servicer.InitDevice,
-          request_deserializer=driversdb__pb2.Targa.FromString,
-          response_serializer=driversdb__pb2.Config.SerializeToString,
+      'Report': grpc.unary_unary_rpc_method_handler(
+          servicer.Report,
+          request_deserializer=driversdb__pb2.Test.FromString,
+          response_serializer=driversdb__pb2.ACK.SerializeToString,
       ),
-      'Analize': grpc.unary_unary_rpc_method_handler(
-          servicer.Analize,
+      'initReport': grpc.unary_unary_rpc_method_handler(
+          servicer.initReport,
+          request_deserializer=driversdb__pb2.Test.FromString,
+          response_serializer=driversdb__pb2.ACK.SerializeToString,
+      ),
+      'finalReport': grpc.unary_unary_rpc_method_handler(
+          servicer.finalReport,
           request_deserializer=driversdb__pb2.Test.FromString,
           response_serializer=driversdb__pb2.ACK.SerializeToString,
       ),

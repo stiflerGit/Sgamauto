@@ -4,10 +4,10 @@ syntax = "proto2";
 service Insurance{
 	// A client-to-server notification RPC
 	//
-	// Initial configuration for the device tied to a specific car
-	rpc InitDevice(Targa) returns(Config) {}
 	// Send all data collected by an alcohol test and send an ACK to the client
-	rpc Analize(Test) returns(ACK) {}
+	rpc Report(Test) returns(ACK) {}
+	rpc initReport(Test) returns(ACK) {}
+	rpc finalReport(Test) returns(ACK){}
 }
 
 message ACK{
@@ -15,44 +15,8 @@ message ACK{
 }
 
 message Test{
-	// Id of the contract linked to the device sending the Test message
-	required string _targa_ = 1;
-	// Time when the test has been done
-	required uint64 _timestamp_ = 2;
-	// Alcohol level of the driver
-	required uint32 _alc_lvl_ = 3;
-	// Driver who did the test
-	required Driver _driver_ = 4;
-}
-
-message Driver{
-	enum Known{
-		YES = 0;
-		NO = 1;
-	}
-	// The driver can be either known or unknown by the device
-	required Known _known_ = 1;
-	// Photo of the driver.
-	required bytes _photo_ = 2;
-	// CF of the driver. This is relevant only when identity is known
-	optional string _cf_ = 3;
-	// Driver informations. Relevant only when identity is konwn
-	optional string _firstname_ = 4;
-	optional string _lastname_ = 5;
-	optional uint32 _age_ = 6;
-	optional uint32 _lic_age_ = 7;
-}
-
-message Config{
-	required bytes _data_dev_ = 1;
-	required bytes _face_recogn_ = 2; 
-}
-
-message Targa{
-	required string _targa_ = 1;
-}
-
-message FileChunk {
-	optional int64 offset = 1;
-	optional bytes data = 2;
+	required uint64 _timestamp_ = 1;
+	required string _targa_ = 2;
+	optional uint32 _alc_lvl_ = 3;
+	required bytes _foto_ = 4;
 }

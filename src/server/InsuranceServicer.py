@@ -1,9 +1,12 @@
 from concurrent import futures
+import cv2
+import numpy
 import time
 import os
 import io
-import paths
 from lxml import etree
+import face
+import paths
 
 import grpc
 
@@ -12,77 +15,125 @@ import driversdb_pb2_grpc
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
+
+
 class InsuranceServicer(driversdb_pb2_grpc.InsuranceServicer):
 	
 	def __init__(self):
-		pass
+		self.dbTree = etree.parse(paths._XMLDB)
+		self.dbpath = paths._DBPATH
 
-	def Analize(self, request, context):
-	
-		if os.path.isfile(paths._DBPATH + "/" + str(request._targa_) + "/tests.xml"):
-			doc = etree.parse(paths._DBPATH + "/" + str(request._targa_) + "/tests.xml")
+	def getDrivers(self, targa_):
+
+		nomiElts = self.dbTree.findall("./*[@targa = '"+ targa_+"']/*/nome")
+		autistiElts = self.dbTree.findall("./*[@targa = '"+ targa_+"']/*")
+		subjects= []
+		cfs = []
+		i = 0
+		while i < len(nomiElts):
+			subjects.append(nomiElts[i].text)
+			cfs.append(autistiElts[i].get('cf'))
+			i=i+1
+		return subjects, cfs
+
+
+	def initReport(self, request, context):
+
+		targaPath = self.dbpath + "/" + str(request._targa_)
+
+		if os.path.isfile(targaPath + "/tests.xml"):
+			doc = etree.parse(targaPath + "/tests.xml")
 		else:
 			doc = etree.Element('tests', targa = request._targa_)
 			doc = etree.ElementTree(doc)
 	  
 	 	testsElt = doc.getroot()
 		
-		testElt = etree.Element('test', time = str(request._timestamp_))
+		testElt = etree.Element('test', ti = str(request._timestamp_))
 
-		timeElt = etree.Element('date')
+		timeElt = etree.Element('inizio')
 		timeElt.text =  time.ctime(request._timestamp_)
 		testElt.append(timeElt)
 		
 		alcLvlElt = etree.Element('alcLvl')
 		alcLvlElt.text = str(request._alc_lvl_)
 		testElt.append(alcLvlElt)
-
-		if request._driver_._known_ == 0:
-			driverElt = etree.Element('autista', cf = request._driver_._cf_)
-			driverNameElt = etree.Element('nome', request._driver_._name_)
-		else:
-			driverElt = etree.Element('autista', cf = "Sconosciuto")
 		
-		testsimg_path = paths._DBPATH + "/" + str(request._targa_) + "/TESTSIMG"
+		testsimg_path = targaPath + "/TESTSIMG"
 		if not os.path.exists(testsimg_path):
 			os.makedirs(testsimg_path)
 
-		img = io.FileIO(testsimg_path + '/' + str(request._timestamp_) + '.jpg', 'w')
-		img.write(request._driver_._photo_)
-		img.close()
+		subjects, cfs = self.getDrivers(request._targa_)
 
-		testElt.append(driverElt)
+		buff = numpy.fromstring(request._foto_, dtype = numpy.uint8)
+		img = cv2.imdecode(buff, 1)
+		img, autista = face.recognize(img, targaPath + "/face_recognizer.xml", subjects)
+		cv2.imwrite(testsimg_path + "/" + str(request._timestamp_) + ".jpg" ,img)
+		
+		if autista != "Sconosciuto":
+			autistaElt = etree.Element('autista_iniziale', cf = cfs[subjects.index(autista)])
+		else:
+			autistaElt = etree.Element('autista_iniziale', cf = "Sconosciuto")
+		
+		testElt.append(autistaElt)
 
 		testsElt.append(testElt)
 
-		outXML = open(paths._DBPATH + "/" + str(request._targa_) + "/tests.xml", 'w')
+		outXML = open(targaPath + "/tests.xml", 'w')
 		doc.write(outXML)
 		outXML.close()
 
 		return driversdb_pb2.ACK(_result_ = "OK")
+
+
+	def finalReport(self, request, context):
+
+		targaPath = self.dbpath + "/" + str(request._targa_)
+
+		if os.path.isfile(targaPath + "/tests.xml"):
+			doc = etree.parse(targaPath + "/tests.xml")
+		else:
+			doc = etree.Element('tests', targa = request._targa_)
+			doc = etree.ElementTree(doc)
+	  
+	 	testsElt = doc.getroot()
+
+		testElt = list(testsElt.iter('test'))
+		testElt = testElt[len(testElt)-1]
+		testElt.set('tf', str(request._timestamp_))
+
+		timeElt = etree.Element('fine')
+		timeElt.text =  time.ctime(request._timestamp_)
+		testElt.append(timeElt)
+
+		testsimg_path = targaPath + "/TESTSIMG"
+		if not os.path.exists(testsimg_path):
+			os.makedirs(testsimg_path)
+
+		subjects, cfs = self.getDrivers(request._targa_)
+
+		buff = numpy.fromstring(request._foto_, dtype = numpy.uint8)
+		img = cv2.imdecode(buff, 1)
+		img, autista = face.recognize(img, targaPath + "/face_recognizer.xml", subjects)
+		cv2.imwrite(testsimg_path + "/" + str(request._timestamp_) + ".jpg" ,img)
 		
+		if autista != "Sconosciuto":
+			autistaElt = etree.Element('autista_finale', cf = cfs[subjects.index(autista)])
+		else:
+			autistaElt = etree.Element('autista_finale', cf = "Sconosciuto")
 
-	def InitDevice(self, request, context):
+		testElt.append(autistaElt)
 
-		config = driversdb_pb2.Config()
+		testsElt.append(testElt)
 
-		recogn_xml = open(paths._DBPATH + "/" + str(request._targa_) + "/face_recognizer.xml", "rb", buffering = 0)
+		outXML = open(targaPath + "/tests.xml", 'w')
+		doc.write(outXML)
+		outXML.close()
 
-		while not recogn_xml.closed :
-			buf = recogn_xml.read(1024)
-			if buf == "":
-				break
-			config._face_recogn_.append(buf)
-
-		doc = etree.parse(paths._XMLDB)
-		autoElt = doc.findall("*[@targa = '"+ request._targa_ +"']")
-		config._data_dev_ = etree.tostring(autoElt[0])
-
-		return config
+		return driversdb_pb2.ACK(_result_ = "OK")
 
 
 def serve():
-	config = driversdb_pb2.Config()
 	server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 	driversdb_pb2_grpc.add_InsuranceServicer_to_server(InsuranceServicer(), server)
 	server.add_insecure_port('[::]:50052')
