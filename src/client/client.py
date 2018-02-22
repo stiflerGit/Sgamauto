@@ -4,6 +4,7 @@ from picamera import PiCamera
 import time
 import io
 import cv2
+from PIL import Image
 
 import face
 import mq
@@ -18,8 +19,6 @@ cam.resolution = (640, 480)
 cam.framerate = 32
 
 MQ = mq.MQ()
-
-targa = "FF444FF" 
 
 faceLedPin = 18
 alcLedPin = 16
@@ -37,39 +36,46 @@ def Init(stub, _targa):
 	data_dev.write(config._data_dev_)
 	data_dev.close()
 """
-def getAlcLvl():
-    alcLvl = MQ.MQPercentage()
-    alcLvl = alcLvl["GAS_ALCOHOL"]
-    #trasforma alclvl in qualcosa
-    return int(alcLvl)
+class clientDevice(targa, serverip, porta):
+    
+    def __init__(self):
+        self.targa = targa
+        self.channel = grpc.insecure_channel(serverip +":"+porta)
+        self.stub = driversdb_pb2_grpc.InsuranceStub(channel)
 
+    def getAlcLvl(self):
+        alcLvl = MQ.MQPercentage()
+        alcLvl = alcLvl["GAS_ALCOHOL"]
+        #trasforma alclvl in qualcosa
+        return int(alcLvl)
 
-def getFacePicture():
+    def getFacePicture(self):
 
-    ti = time.time()
-    rawCapture = PiRGBArray(cam, size=(640, 480))
-    for frame in cam.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-    # grab the raw NumPy array representing the image, then initialize the timestamp
-    # and occupied/unoccupied text
-        img = frame.array
-        fc, rect = face.detect_face(img)
-        if(fc is not None):
-            (x,y,w,h) = rect
-            if (w > 280 and h > 280):
-                rawCapture.truncate(0)
-                return img
-        # show the frame
-        cv2.imshow("Frame", img)
-        key = cv2.waitKey(10) & 0xFF
-        # clear the stream in preparation for the next frame
-        rawCapture.truncate(0)
-        if time.time() > ti + 1:
-            return None
+        ti = time.time()
+        rawCapture = PiRGBArray(cam, size=(640, 480))
+        for frame in cam.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+        # grab the raw NumPy array representing the image, then initialize the timestamp
+        # and occupied/unoccupied text
+            img = frame.array
+            fc, rect = face.detect_face(img)
+            if(fc is not None):
+                (x,y,w,h) = rect
+                if (w > 280 and h > 280):
+                    rawCapture.truncate(0)
+                    return img
+            # show the frame
+            #img2 = Image.fromarray(img, 'RGB')
+            #img2.show()
+            #cv2.imshow("Frame", img)
+            #key = cv2.waitKey(10) & 0xFF
+            # clear the stream in preparation for the next frame
+            rawCapture.truncate(0)
+            if time.time() > ti + 1:
+                return None
 	
+    def sendFinTest(self, foto_):
 
-def send_fintest(stub, targa_, foto_):
-
-	test = driversdb_pb2.Test(_targa_ = targa_, _timestamp_ = int(time.time()))
+	test = driversdb_pb2.Test(_targa_ = self.targa_, _timestamp_ = int(time.time()))
 
 	img = open(foto_, "rb", buffering=0)
 	test._foto_ = img.read()
@@ -78,9 +84,9 @@ def send_fintest(stub, targa_, foto_):
 	ack = stub.finalReport(test)
 	return ack
 
-def send_initest(stub, targa_ , foto_, alc_lvl_):
+    def send_initest(self, foto_):
 
-	test = driversdb_pb2.Test(_targa_ = targa_, _timestamp_ = int(time.time()), _alc_lvl_ = alc_lvl_)
+	test = driversdb_pb2.Test(_targa_ = self.targa_, _timestamp_ = int(time.time()), _alc_lvl_ = alc_lvl_)
 
 	img = open(foto_, "rb", buffering=0)
 	test._foto_ = img.read()
@@ -89,9 +95,7 @@ def send_initest(stub, targa_ , foto_, alc_lvl_):
 	ack = stub.initReport(test)
 	return ack
     
-def initialTest():
-    channel = grpc.insecure_channel('131.114.209.143:50052')
-    stub = driversdb_pb2_grpc.InsuranceStub(channel)
+    def initialTest(self):
     
     #initGPIO()
     img = None
@@ -122,7 +126,7 @@ def initialTest():
     GPIO.output(alcLedPin, GPIO.LOW)
 
 def finalTest():
-    channel = grpc.insecure_channel('192.168.43.45:50052')
+    channel = grpc.insecure_channel('192.168.43.45:5052')
     stub = driversdb_pb2_grpc.InsuranceStub(channel)
 
     #initGPIO()
