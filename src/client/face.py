@@ -1,9 +1,7 @@
 import cv2
 import numpy as np
-import paths
 import sys, math
 from PIL import Image
-from lxml import etree
 
 
 def draw_rectangle(img, rect):
@@ -121,4 +119,4 @@ def recognize(img, rcg_path, subjects):
 		else:
 			face.draw_text(img, "Sconosciuto", rect[0], rect[1]-5)
 			return img, "Sconosciuto"
-	return None, "Sconosciuto"
+	return None, None 
