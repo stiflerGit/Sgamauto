@@ -64,7 +64,7 @@ while i < nautisti:
 
 	cam.open(0)
         sampleNum=1
-        while sampleNum < 30:
+        while sampleNum < 100:
                 ret, img = cam.read()
                 directory = autistapath[i] + "/training-data"
                 if not os.path.exists(directory):
@@ -72,7 +72,7 @@ while i < nautisti:
 		face.draw_text(img, str(sampleNum), 10, 30 )
                 cv2.imwrite(directory + "/img"+str(sampleNum)+".jpg", img)
                 cv2.imshow('frame',img)
-                cv2.waitKey(100)
+                cv2.waitKey(250)
                 sampleNum = sampleNum+1
 
 	cam.release()

@@ -16,7 +16,6 @@ import driversdb_pb2_grpc
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
 
-
 class InsuranceServicer(driversdb_pb2_grpc.InsuranceServicer):
 	
 	def __init__(self):
@@ -136,7 +135,8 @@ class InsuranceServicer(driversdb_pb2_grpc.InsuranceServicer):
 def serve():
 	server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 	driversdb_pb2_grpc.add_InsuranceServicer_to_server(InsuranceServicer(), server)
-	server.add_insecure_port('[::]:50052')
+	#server.add_insecure_port('192.168.43.45:5052')
+	server.add_insecure_port('[::]:5052')
 	server.start()
 	try:
 		while True:

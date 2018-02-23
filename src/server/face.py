@@ -108,7 +108,7 @@ def recognize(img, rcg_path, subjects):
 	recognizer.load(rcg_path)
 	#rilevo la faccia dell'autista nella foto
 	gray, rect = detect_face(img)
-	if(gray != None):
+	if(gray is not None):
 		label, confidence = recognizer.predict(gray)
 		#print "label = " + str(label) + " conf =  " + str(confidence)
 		# Ottengo il nome dell'autista legato all'indice restituito dal recognizer
