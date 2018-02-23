@@ -20,8 +20,8 @@ cam.framerate = 32
 
 MQ = mq.MQ()
 
-faceLedPin = 18
-alcLedPin = 16
+faceLedPin = 38 
+alcLedPin = 40 
 
 
 class clientDevice():
@@ -30,12 +30,12 @@ class clientDevice():
         self.targa = targa
         channel = grpc.insecure_channel(serverip +":"+porta)
         self.stub = driversdb_pb2_grpc.InsuranceStub(channel)
-	GPIO.setmode(GPIO.BOARD)
+	#GPIO.setmode(GPIO.BOARD)
 	GPIO.setup(faceLedPin, GPIO.OUT)
 	GPIO.setup(alcLedPin, GPIO.OUT)
 	GPIO.output(faceLedPin, GPIO.LOW)
 	GPIO.output(alcLedPin, GPIO.LOW)
-	GPIO.setwarnings(False)
+	#GPIO.setwarnings(False)
 
     def getAlcLvl(self):
         alcLvl = MQ.MQPercentage()

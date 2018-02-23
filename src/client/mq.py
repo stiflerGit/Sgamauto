@@ -48,11 +48,11 @@ class MQ():
         
         #self.Ro = float(self.RL_VALUE*1023.0)
            
-        print("Calibrating...")
+        #print("Calibrating...")
         #self.Ro = self.MQCalibration(self.MQ_PIN)
         self.Ro = 2000
-        print("Calibration is done...\n")
-        print("Ro=%f kohm" % self.Ro)
+        #print("Calibration is done...\n")
+        #print("Ro=%f kohm" % self.Ro)
     
     def MQPercentage(self):
         val = {}

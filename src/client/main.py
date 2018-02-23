@@ -9,7 +9,7 @@ import client
 # pushbutton connected to this GPIO pin, using pin 5 also has the benefit of
 # waking / powering up Raspberry Pi when button is pressed
 shutdownPin = 5
-readyPin = 22
+readyPin = 36 
 # if button pressed for at least this long then shut down. if less then reboot.
 shutdownMinSeconds = 3
 
@@ -48,9 +48,9 @@ def buttonStateChanged(pin):
 # subscribe to button presses
 print "ciao"
 #inizializzo il client
-clientDev = client.clientDevice("AB123CD","192.168.1.73","5052")
 GPIO.setup(readyPin, GPIO.OUT)
 GPIO.output(readyPin, GPIO.HIGH)
+clientDev = client.clientDevice("AB123CD","192.168.1.73","5052")
 clientDev.initialTest()
 GPIO.output(readyPin, GPIO.LOW)
 GPIO.add_event_detect(shutdownPin, GPIO.BOTH, callback=buttonStateChanged)
