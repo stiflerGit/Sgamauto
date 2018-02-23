@@ -20,28 +20,22 @@ cam.framerate = 32
 
 MQ = mq.MQ()
 
-faceLedPin = 18
-alcLedPin = 16
+faceLedPin = 38 
+alcLedPin = 40 
 
-"""
-def Init(stub, _targa):
-	targa = driversdb_pb2.Targa(_targa_ = _targa)
-	config = stub.InitDevice(targa)
 
-	face_rcg = open("./face_recognizer.xml", "w")
-	face_rcg.write(config._face_recogn_)
-	face_rcg.close()
-	
-	data_dev = open('./data_dev.xml', 'w')
-	data_dev.write(config._data_dev_)
-	data_dev.close()
-"""
-class clientDevice(targa, serverip, porta):
+class clientDevice():
     
-    def __init__(self):
+    def __init__(self, targa, serverip, porta):
         self.targa = targa
-        self.channel = grpc.insecure_channel(serverip +":"+porta)
+        channel = grpc.insecure_channel(serverip +":"+porta)
         self.stub = driversdb_pb2_grpc.InsuranceStub(channel)
+	#GPIO.setmode(GPIO.BOARD)
+	GPIO.setup(faceLedPin, GPIO.OUT)
+	GPIO.setup(alcLedPin, GPIO.OUT)
+	GPIO.output(faceLedPin, GPIO.LOW)
+	GPIO.output(alcLedPin, GPIO.LOW)
+	#GPIO.setwarnings(False)
 
     def getAlcLvl(self):
         alcLvl = MQ.MQPercentage()
@@ -75,77 +69,66 @@ class clientDevice(targa, serverip, porta):
 	
     def sendFinTest(self, foto_):
 
-	test = driversdb_pb2.Test(_targa_ = self.targa_, _timestamp_ = int(time.time()))
+	test = driversdb_pb2.Test(_targa_ = self.targa, _timestamp_ = int(time.time()))
 
 	img = open(foto_, "rb", buffering=0)
 	test._foto_ = img.read()
 	img.close()
 
-	ack = stub.finalReport(test)
+	ack = self.stub.finalReport(test)
 	return ack
 
-    def send_initest(self, foto_):
+    def sendIniTest(self, foto_, alcLvl_):
 
-	test = driversdb_pb2.Test(_targa_ = self.targa_, _timestamp_ = int(time.time()), _alc_lvl_ = alc_lvl_)
+	test = driversdb_pb2.Test(_targa_ = self.targa, _timestamp_ = int(time.time()), _alc_lvl_ = alcLvl_)
 
 	img = open(foto_, "rb", buffering=0)
 	test._foto_ = img.read()
 	img.close()
 
-	ack = stub.initReport(test)
+	ack = self.stub.initReport(test)
 	return ack
     
     def initialTest(self):
-    
-    #initGPIO()
-    img = None
-    while True:
-        while img is None:
-            img = getFacePicture()
-        ti = time.time()
-        GPIO.output(faceLedPin, GPIO.HIGH)
-        time.sleep(1)
-        alcLvl = getAlcLvl()
-        time.sleep(1)
-        tf = time.time()
-        img = None
-        while tf < ti + 5 and img is None:
-            img = getFacePicture()
-            tf = time.time()
-        
-        if tf < ti + 5:
-            GPIO.output(alcLedPin, GPIO.HIGH)
-    	    cv2.imwrite('temp.jpg' , img)
-            send_initest(stub, targa, 'temp.jpg', alcLvl)
-            break
-        else:
-            GPIO.output(faceLedPin, GPIO.LOW)
-        
-    time.sleep(5)
-    GPIO.output(faceLedPin, GPIO.LOW)
-    GPIO.output(alcLedPin, GPIO.LOW)
 
-def finalTest():
-    channel = grpc.insecure_channel('192.168.43.45:5052')
-    stub = driversdb_pb2_grpc.InsuranceStub(channel)
+    	#initGPIO()
+	img = None
+	while True:
+        	while img is None:
+			img = self.getFacePicture()
+        	ti = time.time()
+        	GPIO.output(faceLedPin, GPIO.HIGH)
+        	time.sleep(1)
+        	alcLvl = self.getAlcLvl()
+        	time.sleep(1)
+        	tf = time.time()
+        	img = None
+        	while tf < ti + 5 and img is None:
+            		img = self.getFacePicture()
+            		tf = time.time()
+		if tf < ti + 5:
+			GPIO.output(alcLedPin, GPIO.HIGH)
+			cv2.imwrite('temp.jpg' , img)
+			self.sendIniTest('temp.jpg', alcLvl)
+			break
+	        else:
+			GPIO.output(faceLedPin, GPIO.LOW)
+       		
+	time.sleep(5)
+	GPIO.output(faceLedPin, GPIO.LOW)
+	GPIO.output(alcLedPin, GPIO.LOW)
 
-    #initGPIO()
-    # effettua il test dell'alcol e contemporaneamente fai una foto
-    img = None
-    while img is None:
-        img = getFacePicture()
-    cv2.imwrite('temp.jpg' , img)
-    send_fintest(stub, targa, 'temp.jpg')
+    def finalTest(self):
+	   
+	#initGPIO()
+	# effettua il test dell'alcol e contemporaneamente fai una foto
+	img = None
+	while img is None:
+       		img = self.getFacePicture()
+	cv2.imwrite('temp.jpg' , img)
+	self.sendFinTest('temp.jpg')
+	GPIO.output(faceLedPin, GPIO.HIGH)
+	time.sleep(5)
+	GPIO.output(faceLedPin, GPIO.LOW)
 
-    GPIO.output(faceLedPin, GPIO.HIGH)
-    time.sleep(5)
-    GPIO.output(faceLedPin, GPIO.LOW)
 
-def initGPIO():
-
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(faceLedPin, GPIO.OUT)#, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(alcLedPin, GPIO.OUT)#, pull_up_down=GPIO.PUD_UP)
-    GPIO.output(faceLedPin, GPIO.LOW)
-    GPIO.output(alcLedPin, GPIO.LOW)
-    GPIO.setwarnings(False)
