@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # shutdown/reboot(/power on) Raspberry Pi with pushbutton
-
 import RPi.GPIO as GPIO
 from subprocess import call
 from datetime import datetime
@@ -21,7 +20,7 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setup(shutdownPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 buttonPressedTime = None
-
+clientDev = None
 
 def buttonStateChanged(pin):
     global buttonPressedTime
@@ -40,21 +39,21 @@ def buttonStateChanged(pin):
                 call(['shutdown', '-h', 'now'], shell=False)
             elif elapsed >= debounceSeconds:
                 GPIO.output(readyPin, GPIO.HIGH)
-                client.finalTest()
+                clientDev.finalTest()
                 GPIO.output(readyPin, GPIO.LOW)
                 # button pressed for a shorter time, reboot
                 call(['shutdown', '-r', 'now'], shell=False)
 
 
 # subscribe to button presses
-client.initGPIO()
+print "ciao"
+#inizializzo il client
+clientDev = client.clientDevice("AB123CD","192.168.1.73","5052")
 GPIO.setup(readyPin, GPIO.OUT)
 GPIO.output(readyPin, GPIO.HIGH)
-client.initialTest()
+clientDev.initialTest()
 GPIO.output(readyPin, GPIO.LOW)
 GPIO.add_event_detect(shutdownPin, GPIO.BOTH, callback=buttonStateChanged)
-
 while True:
-    # sleep to reduce unnecessary CPU usage
+# sleep to reduce unnecessary CPU usage
     time.sleep(5)
-
